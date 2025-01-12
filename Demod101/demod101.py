@@ -82,10 +82,10 @@ class demod101(gr.top_block, Qt.QWidget):
         self._frequency_shift_range = qtgui.Range(-240e3, 240e3, 1e3, 15.56e3, 200)
         self._frequency_shift_win = qtgui.RangeWidget(self._frequency_shift_range, self.set_frequency_shift, "'frequency_shift'", "counter_slider", float, QtCore.Qt.Horizontal)
         self.top_layout.addWidget(self._frequency_shift_win)
-        self.qtgui_time_sink_x_0_1 = qtgui.time_sink_c(
+        self.qtgui_time_sink_x_0_1 = qtgui.time_sink_f(
             (int((stop_time - start_time) * (samp_rate / decimation))), #size
             samp_rate / decimation, #samp_rate
-            "AFTER float", #name
+            "BEFORE symbol sync", #name
             1, #number of inputs
             None # parent
         )
@@ -117,12 +117,9 @@ class demod101(gr.top_block, Qt.QWidget):
             -1, -1, -1, -1, -1]
 
 
-        for i in range(2):
+        for i in range(1):
             if len(labels[i]) == 0:
-                if (i % 2 == 0):
-                    self.qtgui_time_sink_x_0_1.set_line_label(i, "Re{{Data {0}}}".format(i/2))
-                else:
-                    self.qtgui_time_sink_x_0_1.set_line_label(i, "Im{{Data {0}}}".format(i/2))
+                self.qtgui_time_sink_x_0_1.set_line_label(i, "Data {0}".format(i))
             else:
                 self.qtgui_time_sink_x_0_1.set_line_label(i, labels[i])
             self.qtgui_time_sink_x_0_1.set_line_width(i, widths[i])
@@ -181,7 +178,7 @@ class demod101(gr.top_block, Qt.QWidget):
 
         self._qtgui_time_sink_x_0_0_0_0_win = sip.wrapinstance(self.qtgui_time_sink_x_0_0_0_0.qwidget(), Qt.QWidget)
         self.top_layout.addWidget(self._qtgui_time_sink_x_0_0_0_0_win)
-        self.qtgui_time_sink_x_0_0_0 = qtgui.time_sink_c(
+        self.qtgui_time_sink_x_0_0_0 = qtgui.time_sink_f(
             (int((stop_time - start_time) * symbol_rate)), #size
             symbol_rate, #samp_rate
             "AFTER symbol sync", #name
@@ -216,12 +213,9 @@ class demod101(gr.top_block, Qt.QWidget):
             -1, -1, -1, -1, -1]
 
 
-        for i in range(2):
+        for i in range(1):
             if len(labels[i]) == 0:
-                if (i % 2 == 0):
-                    self.qtgui_time_sink_x_0_0_0.set_line_label(i, "Re{{Data {0}}}".format(i/2))
-                else:
-                    self.qtgui_time_sink_x_0_0_0.set_line_label(i, "Im{{Data {0}}}".format(i/2))
+                self.qtgui_time_sink_x_0_0_0.set_line_label(i, "Data {0}".format(i))
             else:
                 self.qtgui_time_sink_x_0_0_0.set_line_label(i, labels[i])
             self.qtgui_time_sink_x_0_0_0.set_line_width(i, widths[i])
@@ -233,7 +227,7 @@ class demod101(gr.top_block, Qt.QWidget):
         self._qtgui_time_sink_x_0_0_0_win = sip.wrapinstance(self.qtgui_time_sink_x_0_0_0.qwidget(), Qt.QWidget)
         self.top_layout.addWidget(self._qtgui_time_sink_x_0_0_0_win)
         self.freq_xlating_fir_filter_xxx_0 = filter.freq_xlating_fir_filter_ccc(decimation, variable_low_pass_filter_taps, frequency_shift, samp_rate)
-        self.digital_symbol_sync_xx_0 = digital.symbol_sync_cc(
+        self.digital_symbol_sync_xx_0 = digital.symbol_sync_ff(
             digital.TED_MUELLER_AND_MULLER,
             (int(samp_rate / (decimation * symbol_rate))),
             0.045,
@@ -252,7 +246,6 @@ class demod101(gr.top_block, Qt.QWidget):
         self.blocks_throttle2_0 = blocks.throttle( gr.sizeof_gr_complex*1, samp_rate, True, 0 if "auto" == "auto" else max( int(float(0.1) * samp_rate) if "auto" == "time" else int(0.1), 1) )
         self.blocks_repack_bits_bb_0 = blocks.repack_bits_bb(1, 8, "", False, gr.GR_MSB_FIRST)
         self.blocks_multiply_const_vxx_0 = blocks.multiply_const_ff(4)
-        self.blocks_float_to_complex_0 = blocks.float_to_complex(1)
         self.blocks_file_source_0 = blocks.file_source(gr.sizeof_gr_complex*1, '/home/dragon/Documents/GNU-Radio-Conference-2023-CTF/Demod101/demod.sigmf-data', True, (int(start_time * samp_rate)), (int((stop_time - start_time) * samp_rate)))
         self.blocks_file_source_0.set_begin_tag(pmt.PMT_NIL)
         self.blocks_file_sink_0_0 = blocks.file_sink(gr.sizeof_char*1, '/tmp/test2.txt', False)
@@ -260,7 +253,6 @@ class demod101(gr.top_block, Qt.QWidget):
         self.blocks_file_sink_0 = blocks.file_sink(gr.sizeof_char*1, '/tmp/test.txt', False)
         self.blocks_file_sink_0.set_unbuffered(False)
         self.blocks_delay_0 = blocks.delay(gr.sizeof_char*1, 2)
-        self.blocks_complex_to_real_0 = blocks.complex_to_real(1)
         self.blocks_complex_to_mag_0 = blocks.complex_to_mag(1)
         self.blocks_add_const_vxx_0 = blocks.add_const_ff((-1))
         self.analog_const_source_x_0 = analog.sig_source_b(0, analog.GR_CONST_WAVE, 0, 0, -1)
@@ -270,13 +262,11 @@ class demod101(gr.top_block, Qt.QWidget):
         # Connections
         ##################################################
         self.connect((self.analog_const_source_x_0, 0), (self.blocks_xor_xx_0, 1))
-        self.connect((self.blocks_add_const_vxx_0, 0), (self.blocks_float_to_complex_0, 0))
+        self.connect((self.blocks_add_const_vxx_0, 0), (self.digital_symbol_sync_xx_0, 0))
+        self.connect((self.blocks_add_const_vxx_0, 0), (self.qtgui_time_sink_x_0_1, 0))
         self.connect((self.blocks_complex_to_mag_0, 0), (self.blocks_multiply_const_vxx_0, 0))
-        self.connect((self.blocks_complex_to_real_0, 0), (self.digital_binary_slicer_fb_0, 0))
         self.connect((self.blocks_delay_0, 0), (self.blocks_repack_bits_bb_0, 0))
         self.connect((self.blocks_file_source_0, 0), (self.blocks_throttle2_0, 0))
-        self.connect((self.blocks_float_to_complex_0, 0), (self.digital_symbol_sync_xx_0, 0))
-        self.connect((self.blocks_float_to_complex_0, 0), (self.qtgui_time_sink_x_0_1, 0))
         self.connect((self.blocks_multiply_const_vxx_0, 0), (self.blocks_add_const_vxx_0, 0))
         self.connect((self.blocks_repack_bits_bb_0, 0), (self.blocks_file_sink_0, 0))
         self.connect((self.blocks_repack_bits_bb_0, 0), (self.blocks_xor_xx_0, 0))
@@ -286,7 +276,7 @@ class demod101(gr.top_block, Qt.QWidget):
         self.connect((self.digital_binary_slicer_fb_0, 0), (self.blocks_delay_0, 0))
         self.connect((self.digital_binary_slicer_fb_0, 0), (self.digital_correlate_access_code_tag_xx_0, 0))
         self.connect((self.digital_correlate_access_code_tag_xx_0, 0), (self.blocks_uchar_to_float_0, 0))
-        self.connect((self.digital_symbol_sync_xx_0, 0), (self.blocks_complex_to_real_0, 0))
+        self.connect((self.digital_symbol_sync_xx_0, 0), (self.digital_binary_slicer_fb_0, 0))
         self.connect((self.digital_symbol_sync_xx_0, 0), (self.qtgui_time_sink_x_0_0_0, 0))
         self.connect((self.freq_xlating_fir_filter_xxx_0, 0), (self.blocks_complex_to_mag_0, 0))
 

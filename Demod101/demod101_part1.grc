@@ -197,22 +197,6 @@ blocks:
     coordinate: [872, 272.0]
     rotation: 0
     state: enabled
-- name: blocks_complex_to_real_0
-  id: blocks_complex_to_real
-  parameters:
-    affinity: ''
-    alias: ''
-    comment: ''
-    maxoutbuf: '0'
-    minoutbuf: '0'
-    vlen: '1'
-  states:
-    bus_sink: false
-    bus_source: false
-    bus_structure: null
-    coordinate: [1336, 440.0]
-    rotation: 180
-    state: enabled
 - name: blocks_delay_0
   id: blocks_delay
   parameters:
@@ -292,22 +276,6 @@ blocks:
     bus_source: false
     bus_structure: null
     coordinate: [24, 132.0]
-    rotation: 0
-    state: enabled
-- name: blocks_float_to_complex_0
-  id: blocks_float_to_complex
-  parameters:
-    affinity: ''
-    alias: ''
-    comment: ''
-    maxoutbuf: '0'
-    minoutbuf: '0'
-    vlen: '1'
-  states:
-    bus_sink: false
-    bus_source: false
-    bus_structure: null
-    coordinate: [1024, 344.0]
     rotation: 0
     state: enabled
 - name: blocks_multiply_const_vxx_0
@@ -454,12 +422,12 @@ blocks:
     sps: int(samp_rate / (decimation * symbol_rate))
     ted_gain: '1.0'
     ted_type: digital.TED_MUELLER_AND_MULLER
-    type: cc
+    type: ff
   states:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [1216, 260.0]
+    coordinate: [1240, 268.0]
     rotation: 0
     state: enabled
 - name: freq_xlating_fir_filter_xxx_0
@@ -749,7 +717,7 @@ blocks:
     tr_mode: qtgui.TRIG_MODE_FREE
     tr_slope: qtgui.TRIG_SLOPE_POS
     tr_tag: '""'
-    type: complex
+    type: float
     update_time: '0.10'
     width1: '1'
     width10: '1'
@@ -922,7 +890,7 @@ blocks:
     marker7: '-1'
     marker8: '-1'
     marker9: '-1'
-    name: '"AFTER float"'
+    name: '"BEFORE symbol sync"'
     nconnections: '1'
     size: int((stop_time - start_time) * (samp_rate / decimation))
     srate: samp_rate / decimation
@@ -943,7 +911,7 @@ blocks:
     tr_mode: qtgui.TRIG_MODE_FREE
     tr_slope: qtgui.TRIG_SLOPE_POS
     tr_tag: '""'
-    type: complex
+    type: float
     update_time: '0.10'
     width1: '1'
     width10: '1'
@@ -1091,13 +1059,11 @@ blocks:
 
 connections:
 - [analog_const_source_x_0, '0', blocks_xor_xx_0, '1']
-- [blocks_add_const_vxx_0, '0', blocks_float_to_complex_0, '0']
+- [blocks_add_const_vxx_0, '0', digital_symbol_sync_xx_0, '0']
+- [blocks_add_const_vxx_0, '0', qtgui_time_sink_x_0_1, '0']
 - [blocks_complex_to_mag_0, '0', blocks_multiply_const_vxx_0, '0']
-- [blocks_complex_to_real_0, '0', digital_binary_slicer_fb_0, '0']
 - [blocks_delay_0, '0', blocks_repack_bits_bb_0, '0']
 - [blocks_file_source_0, '0', blocks_throttle2_0, '0']
-- [blocks_float_to_complex_0, '0', digital_symbol_sync_xx_0, '0']
-- [blocks_float_to_complex_0, '0', qtgui_time_sink_x_0_1, '0']
 - [blocks_multiply_const_vxx_0, '0', blocks_add_const_vxx_0, '0']
 - [blocks_repack_bits_bb_0, '0', blocks_file_sink_0, '0']
 - [blocks_repack_bits_bb_0, '0', blocks_xor_xx_0, '0']
@@ -1108,7 +1074,7 @@ connections:
 - [digital_binary_slicer_fb_0, '0', blocks_delay_0, '0']
 - [digital_binary_slicer_fb_0, '0', digital_correlate_access_code_tag_xx_0, '0']
 - [digital_correlate_access_code_tag_xx_0, '0', blocks_uchar_to_float_0, '0']
-- [digital_symbol_sync_xx_0, '0', blocks_complex_to_real_0, '0']
+- [digital_symbol_sync_xx_0, '0', digital_binary_slicer_fb_0, '0']
 - [digital_symbol_sync_xx_0, '0', qtgui_time_sink_x_0_0_0, '0']
 - [freq_xlating_fir_filter_xxx_0, '0', blocks_complex_to_mag_0, '0']
 - [freq_xlating_fir_filter_xxx_0, '0', qtgui_freq_sink_x_0, '0']
