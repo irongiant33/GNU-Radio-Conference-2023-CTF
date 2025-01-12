@@ -369,7 +369,7 @@ blocks:
     resamp_type: digital.IR_MMSE_8TAP
     sps: samp_rate / (decimation * symbol_rate)
     ted_gain: '1.0'
-    ted_type: digital.TED_SIGNAL_TIMES_SLOPE_ML
+    ted_type: digital.TED_MUELLER_AND_MULLER
     type: ff
   states:
     bus_sink: false
