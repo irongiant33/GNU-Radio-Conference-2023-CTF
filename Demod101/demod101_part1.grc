@@ -250,6 +250,26 @@ blocks:
     coordinate: [344, 508.0]
     rotation: 180
     state: enabled
+- name: blocks_delay_1
+  id: blocks_delay
+  parameters:
+    affinity: ''
+    alias: ''
+    comment: ''
+    delay: '0'
+    maxoutbuf: '0'
+    minoutbuf: '0'
+    num_ports: '1'
+    showports: 'False'
+    type: float
+    vlen: '1'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [1160, 700.0]
+    rotation: 0
+    state: enabled
 - name: blocks_file_sink_0
   id: blocks_file_sink
   parameters:
@@ -322,7 +342,7 @@ blocks:
     maxoutbuf: '0'
     minoutbuf: '0'
     offset: '0'
-    repeat: 'True'
+    repeat: 'False'
     type: complex
     vlen: '1'
   states:
@@ -423,7 +443,7 @@ blocks:
     bus_structure: null
     coordinate: [1744, 860.0]
     rotation: 0
-    state: disabled
+    state: enabled
 - name: blocks_threshold_ff_0
   id: blocks_threshold_ff
   parameters:
@@ -601,6 +621,92 @@ blocks:
     coordinate: [1600, 708.0]
     rotation: 0
     state: disabled
+- name: epy_block_1
+  id: epy_block
+  parameters:
+    _source_code: "\"\"\"\nEmbedded Python Block\n\"\"\"\n\nimport numpy as np\nfrom\
+      \ gnuradio import gr\nimport pmt\nimport array\nimport numpy\nimport scipy.signal\n\
+      \ntau = numpy.pi * 2\nmax_samples = 1000000\ndebug = True\n\n# determine the\
+      \ clock frequency\n# input: magnitude spectrum of clock signal (numpy array)\n\
+      # output: FFT bin number of clock frequency\ndef find_clock_frequency(spectrum):\n\
+      \    maxima = scipy.signal.argrelextrema(spectrum, numpy.greater_equal)[0]\n\
+      \    while maxima[0] < 2:\n        maxima = maxima[1:]\n    if maxima.any():\n\
+      \        threshold = max(spectrum[2:-1])*0.8\n        indices_above_threshold\
+      \ = numpy.argwhere(spectrum[maxima] > threshold)\n        return maxima[indices_above_threshold[0]]\n\
+      \    else:\n        return 0\n\ndef midpoint(a):\n    \"\"\"\n    @brief takes\
+      \ two sets of values, one set is all values above the mean and the other is\
+      \ all values below the mean.\n           then it finds the median of each set\
+      \ and returns the value in between the median of each set.\n    \"\"\"\n   \
+      \ mean_a = numpy.mean(a)\n    mean_a_greater = numpy.ma.masked_greater(a, mean_a)\n\
+      \    high = numpy.ma.median(mean_a_greater)\n    mean_a_less_or_equal = numpy.ma.masked_array(a,\
+      \ ~mean_a_greater.mask)\n    low = numpy.ma.median(mean_a_less_or_equal)\n \
+      \   midpoint_result = (high + low) / 2\n    return midpoint_result\n\n# whole\
+      \ packet clock recovery                                                    \
+      \                                                                          \
+      \           \n# input: real valued NRZ-like waveform (array, tuple, or list)\
+      \                                                                          \
+      \                              \n#        must have at least 2 samples per symbol\
+      \                                                                          \
+      \                                            \n#        must have at least 2\
+      \ symbol transitions                                                       \
+      \                                                               \n# output:\
+      \ list of symbols                                                          \
+      \                                                                          \
+      \         \ndef wpcr(a):                                                   \
+      \                                                                          \
+      \                             \n    if len(a) < 4:                         \
+      \                                                                          \
+      \                                                 \n        return []      \
+      \                                                                          \
+      \                                                                     \n   \
+      \                                                                          \
+      \                                                                          \
+      \               \n    # input conditioning                                 \
+      \                                                                          \
+      \                                   \n    b = (a > midpoint(a)) * 1.0 # convert\
+      \ samples into floats of 0 and 1. 0 if the sample is below the midpoint, 1 if\
+      \ it is above\n    d = numpy.diff(b)**2        # find symbol transition points\
+      \ and mark with the value 1\n    if len(numpy.argwhere(d > 0)) < 2:\n      \
+      \  return []\n    f = scipy.fft.fft(d, len(a))    # len(a) larger than len(d),\
+      \ so pad d with zeros and find clock frequency\n    p = find_clock_frequency(abs(f))\n\
+      \    if p == 0:\n        return []\n    cycles_per_sample = (p*1.0)/len(f)\n\
+      \    clock_phase = 0.5 + numpy.angle(f[p])/(tau)\n    if clock_phase <= 0.5:\n\
+      \        clock_phase += 1\n    symbols = []\n    for i in range(len(a)):\n \
+      \       if clock_phase >= 1:\n            clock_phase -= 1\n            symbols.append(a[i])\n\
+      \        clock_phase += cycles_per_sample\n    if debug:\n        print(\"peak\
+      \ frequency index: %d / %d\" % (p, len(f)))\n        print(\"samples per symbol:\
+      \ %f\" % (1.0/cycles_per_sample))\n        print(\"clock cycles per sample:\
+      \ %f\" % (cycles_per_sample))\n        print(\"clock phase in cycles between\
+      \ 1st and 2nd samples: %f\" % (clock_phase))\n        print(\"clock phase in\
+      \ cycles at 1st sample: %f\" % (clock_phase - cycles_per_sample/2))\n      \
+      \  print(\"symbol count: %d\" % (len(symbols)))\n    return symbols\n\n# convert\
+      \ soft symbols into bits (assuming binary symbols)\ndef slice_bits(symbols):\n\
+      \    symbols_average = numpy.average(symbols)\n    bits = (symbols >= symbols_average)\n\
+      \    return numpy.array(bits, dtype=numpy.uint8)\n\n\n\nclass blk(gr.sync_block):\n\
+      \    \"\"\"Packet Format\"\"\"\n\n    def __init__(self):\n        gr.sync_block.__init__(self,\n\
+      \            name = \"Packet Format GR38\",\n            in_sig = None,\n  \
+      \          out_sig = None)\n        self.message_port_register_in(pmt.intern('PDU_in'))\n\
+      \        self.message_port_register_out(pmt.intern('PDU_out0'))\n        self.set_msg_handler(pmt.intern('PDU_in'),\
+      \ self.handle_msg)\n\n    def handle_msg(self, msg):\n        inMsg = pmt.to_python(msg)\n\
+      \        pld = inMsg[1] ## type-> numpy.ndarray\n        mLen = len(pld)\n \
+      \       print(type(pld))\n        if (mLen > 0):\n            symbols=wpcr(pld)\n\
+      \            bits=slice_bits(symbols)\n            print(list(bits))\n     \
+      \       ## create PMT u8vector using byte array\n            #new_out_bytes_pmt=pmt.cons(pmt.PMT_NIL,pmt.init_u8vector(new_bytes_out_len,(byte_array_new_char_list)))\n\
+      \            self.message_port_pub(pmt.intern('PDU_out0'), msg)\n"
+    affinity: ''
+    alias: ''
+    comment: ''
+    maxoutbuf: '0'
+    minoutbuf: '0'
+  states:
+    _io_cache: ('Packet Format GR38', 'blk', [], [('PDU_in', 'message', 1)], [('PDU_out0',
+      'message', 1)], 'Packet Format', [])
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [1864, 808.0]
+    rotation: 0
+    state: enabled
 - name: freq_xlating_fir_filter_xxx_0
   id: freq_xlating_fir_filter_xxx
   parameters:
@@ -655,7 +761,7 @@ blocks:
     bus_structure: null
     coordinate: [1888, 636.0]
     rotation: 0
-    state: enabled
+    state: disabled
 - name: pdu_pdu_to_stream_x_0
   id: pdu_pdu_to_stream_x
   parameters:
@@ -673,7 +779,7 @@ blocks:
     bus_structure: null
     coordinate: [1880, 460.0]
     rotation: 0
-    state: disabled
+    state: enabled
 - name: pdu_tags_to_pdu_x_0
   id: pdu_tags_to_pdu_x
   parameters:
@@ -935,7 +1041,7 @@ blocks:
     marker9: '-1'
     name: '"AFTER symbol sync"'
     nconnections: '1'
-    size: 10 * int((stop_time - start_time) * symbol_rate)
+    size: '8400'
     srate: symbol_rate
     stemplot: 'False'
     style1: '1'
@@ -976,7 +1082,7 @@ blocks:
     bus_structure: null
     coordinate: [1784, 252.0]
     rotation: 180
-    state: disabled
+    state: enabled
 - name: qtgui_time_sink_x_0_0_0_0
   id: qtgui_time_sink_x
   parameters:
@@ -1226,7 +1332,7 @@ blocks:
     marker9: '-1'
     name: '"BEFORE symbol sync"'
     nconnections: '1'
-    size: int((stop_time - start_time) * (samp_rate / decimation))
+    size: '48000'
     srate: samp_rate / decimation
     stemplot: 'False'
     style1: '1'
@@ -1323,7 +1429,7 @@ blocks:
     marker9: '-1'
     name: '"BEFORE symbol sync"'
     nconnections: '1'
-    size: int((stop_time - start_time) * (samp_rate / decimation))
+    size: '48000'
     srate: samp_rate / decimation
     stemplot: 'False'
     style1: '1'
@@ -1626,16 +1732,18 @@ blocks:
 
 connections:
 - [analog_const_source_x_0, '0', blocks_xor_xx_0, '1']
-- [blocks_add_const_vxx_0, '0', blocks_burst_tagger_0, '0']
+- [blocks_add_const_vxx_0, '0', blocks_delay_1, '0']
 - [blocks_add_const_vxx_0, '0', blocks_multiply_const_vxx_1, '0']
 - [blocks_add_const_vxx_0, '0', digital_symbol_sync_xx_0, '0']
 - [blocks_add_const_vxx_0, '0', qtgui_time_sink_x_0_1, '0']
 - [blocks_add_const_vxx_0, '0', sigmf_sink_0, '0']
+- [blocks_burst_tagger_0, '0', blocks_tag_debug_0, '0']
 - [blocks_burst_tagger_0, '0', digital_binary_slicer_fb_0, '0']
 - [blocks_burst_tagger_0, '0', epy_block_0, '0']
 - [blocks_burst_tagger_0, '0', pdu_tags_to_pdu_x_0, '0']
 - [blocks_complex_to_mag_0, '0', blocks_multiply_const_vxx_0, '0']
 - [blocks_delay_0, '0', blocks_repack_bits_bb_0, '0']
+- [blocks_delay_1, '0', blocks_burst_tagger_0, '0']
 - [blocks_file_source_0, '0', blocks_throttle2_0, '0']
 - [blocks_file_source_0_0, '0', blocks_throttle2_0, '0']
 - [blocks_float_to_short_0, '0', blocks_burst_tagger_0, '1']
@@ -1661,6 +1769,7 @@ connections:
 - [freq_xlating_fir_filter_xxx_0, '0', qtgui_waterfall_sink_x_0_0, '0']
 - [pdu_pdu_to_stream_x_0, '0', qtgui_time_sink_x_0_0_0, '0']
 - [pdu_pdu_to_stream_x_0, '0', zeromq_push_sink_0, '0']
+- [pdu_tags_to_pdu_x_0, pdus, epy_block_1, PDU_in]
 - [pdu_tags_to_pdu_x_0, pdus, network_socket_pdu_0, pdus]
 - [pdu_tags_to_pdu_x_0, pdus, pdu_pdu_to_stream_x_0, pdus]
 - [single_pole_iir_filter_xx_0, '0', blocks_threshold_ff_0, '0']
