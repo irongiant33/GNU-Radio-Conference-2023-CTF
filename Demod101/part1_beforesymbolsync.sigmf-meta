@@ -1,0 +1,18 @@
+{
+    "global": {
+        "core:hw": "",
+        "core:license": "",
+        "core:author": "",
+        "core:description": "",
+        "core:sample_rate": 12000.0,
+        "core:version": "0.0.2",
+        "core:datatype": "rf32_le"
+    },
+    "captures": [
+        {
+            "core:datetime": "2025-01-13T02:55:35.365420000Z",
+            "core:sample_start": 0
+        }
+    ],
+    "annotations": []
+}

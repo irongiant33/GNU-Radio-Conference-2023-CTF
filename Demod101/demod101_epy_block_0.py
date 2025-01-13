@@ -14,39 +14,34 @@ import pmt
 class blk(gr.sync_block):  # other base classes are basic_block, decim_block, interp_block
     """Embedded Python Block example - a simple multiply const"""
 
-    def __init__(self, example_param=1.0):  # only default arguments here
+    def __init__(self, new_tag_value=1.0):  # only default arguments here
         """arguments to this function show up as parameters in GRC"""
         gr.sync_block.__init__(
             self,
-            name='Embedded Python Block',   # will show up in GRC
-            in_sig=[np.complex64],
-            out_sig=[np.complex64]
+            name='Tag Editor',   # will show up in GRC
+            in_sig=[np.float32],
+            out_sig=[np.float32]
         )
         # if an attribute with the same name as a parameter is found,
         # a callback is registered (properties work, too).
-        self.example_param = example_param
-        self.key = pmt.intern("frame_start")
-        self.message = []
-        self.message_threshold = 750
+        self.new_tag_value = new_tag_value
+        self.set_tag_propagation_policy(gr.TPP_DONT)
 
     def work(self, input_items, output_items):
-        # demod
-        bits = [1 if np.real(samp) > 0 else -1 for samp in input_items[0]]
-        output_items[0][:] = bits
-
-        self.message = self.message + bits
-        if(len(self.message) > self.message_threshold):
-
-            # find start of frame
-            start_code = [1, -1] * 14
-            threshold = 25 # max achievable threshold is 28 (i.e. length of start code)
-            correlation = np.correlate(start_code, self.message)
-            indices = np.where(correlation > threshold)[0]
-            if(len(indices) >= 1):
-                self.add_item_tag(0, self.nitems_written(0) + indices[0], self.key, pmt.intern(str(correlation[indices[0]])))
-            print(len(correlation))
-
-            # print out message and reset length
-            self.message = []
-        
+        """example: multiply with constant"""
+        output_items[0][:] = input_items[0]
+        tags = self.get_tags_in_window(0, 0, len(input_items[0]))
+        for tag in tags:
+            key = pmt.to_python(tag.key) # convert from PMT to python string
+            value = pmt.to_python(tag.value) # Note that the type(value) can be several things, it depends what PMT type it was
+            print('key:', key)
+            print('value:', value, type(value))
+            print('')
+            if(value):
+                value = pmt.from_long(self.new_tag_value)
+                self.add_item_tag(0, # Write to output port 0
+                          tag.offset, # Index of the tag in absolute terms
+                          tag.key, # Key of the tag
+                          value # Value of the tag
+                 )
         return len(output_items[0])
