@@ -93,102 +93,6 @@ class demod101(gr.top_block, Qt.QWidget):
         self.sigmf_sink_0.set_global_meta("core:author", '')
         self.sigmf_sink_0.set_global_meta("core:license", '')
         self.sigmf_sink_0.set_global_meta("core:hw", '')
-        self.qtgui_time_sink_x_0_1_0_0 = qtgui.time_sink_f(
-            48000, #size
-            samp_rate / decimation, #samp_rate
-            "BEFORE symbol sync", #name
-            1, #number of inputs
-            None # parent
-        )
-        self.qtgui_time_sink_x_0_1_0_0.set_update_time(0.10)
-        self.qtgui_time_sink_x_0_1_0_0.set_y_axis(-1, 1)
-
-        self.qtgui_time_sink_x_0_1_0_0.set_y_label('Amplitude', "")
-
-        self.qtgui_time_sink_x_0_1_0_0.enable_tags(True)
-        self.qtgui_time_sink_x_0_1_0_0.set_trigger_mode(qtgui.TRIG_MODE_FREE, qtgui.TRIG_SLOPE_POS, 0.0, 0, 0, "")
-        self.qtgui_time_sink_x_0_1_0_0.enable_autoscale(False)
-        self.qtgui_time_sink_x_0_1_0_0.enable_grid(False)
-        self.qtgui_time_sink_x_0_1_0_0.enable_axis_labels(True)
-        self.qtgui_time_sink_x_0_1_0_0.enable_control_panel(True)
-        self.qtgui_time_sink_x_0_1_0_0.enable_stem_plot(False)
-
-
-        labels = ['Signal 1', 'Signal 2', 'Signal 3', 'Signal 4', 'Signal 5',
-            'Signal 6', 'Signal 7', 'Signal 8', 'Signal 9', 'Signal 10']
-        widths = [1, 1, 1, 1, 1,
-            1, 1, 1, 1, 1]
-        colors = ['blue', 'red', 'green', 'black', 'cyan',
-            'magenta', 'yellow', 'dark red', 'dark green', 'dark blue']
-        alphas = [1.0, 1.0, 1.0, 1.0, 1.0,
-            1.0, 1.0, 1.0, 1.0, 1.0]
-        styles = [1, 1, 1, 1, 1,
-            1, 1, 1, 1, 1]
-        markers = [-1, -1, -1, -1, -1,
-            -1, -1, -1, -1, -1]
-
-
-        for i in range(1):
-            if len(labels[i]) == 0:
-                self.qtgui_time_sink_x_0_1_0_0.set_line_label(i, "Data {0}".format(i))
-            else:
-                self.qtgui_time_sink_x_0_1_0_0.set_line_label(i, labels[i])
-            self.qtgui_time_sink_x_0_1_0_0.set_line_width(i, widths[i])
-            self.qtgui_time_sink_x_0_1_0_0.set_line_color(i, colors[i])
-            self.qtgui_time_sink_x_0_1_0_0.set_line_style(i, styles[i])
-            self.qtgui_time_sink_x_0_1_0_0.set_line_marker(i, markers[i])
-            self.qtgui_time_sink_x_0_1_0_0.set_line_alpha(i, alphas[i])
-
-        self._qtgui_time_sink_x_0_1_0_0_win = sip.wrapinstance(self.qtgui_time_sink_x_0_1_0_0.qwidget(), Qt.QWidget)
-        self.top_layout.addWidget(self._qtgui_time_sink_x_0_1_0_0_win)
-        self.qtgui_time_sink_x_0_1_0 = qtgui.time_sink_f(
-            48000, #size
-            samp_rate / decimation, #samp_rate
-            "BEFORE symbol sync", #name
-            1, #number of inputs
-            None # parent
-        )
-        self.qtgui_time_sink_x_0_1_0.set_update_time(0.10)
-        self.qtgui_time_sink_x_0_1_0.set_y_axis(-1, 1)
-
-        self.qtgui_time_sink_x_0_1_0.set_y_label('Amplitude', "")
-
-        self.qtgui_time_sink_x_0_1_0.enable_tags(True)
-        self.qtgui_time_sink_x_0_1_0.set_trigger_mode(qtgui.TRIG_MODE_FREE, qtgui.TRIG_SLOPE_POS, 0.0, 0, 0, "")
-        self.qtgui_time_sink_x_0_1_0.enable_autoscale(False)
-        self.qtgui_time_sink_x_0_1_0.enable_grid(False)
-        self.qtgui_time_sink_x_0_1_0.enable_axis_labels(True)
-        self.qtgui_time_sink_x_0_1_0.enable_control_panel(True)
-        self.qtgui_time_sink_x_0_1_0.enable_stem_plot(False)
-
-
-        labels = ['Signal 1', 'Signal 2', 'Signal 3', 'Signal 4', 'Signal 5',
-            'Signal 6', 'Signal 7', 'Signal 8', 'Signal 9', 'Signal 10']
-        widths = [1, 1, 1, 1, 1,
-            1, 1, 1, 1, 1]
-        colors = ['blue', 'red', 'green', 'black', 'cyan',
-            'magenta', 'yellow', 'dark red', 'dark green', 'dark blue']
-        alphas = [1.0, 1.0, 1.0, 1.0, 1.0,
-            1.0, 1.0, 1.0, 1.0, 1.0]
-        styles = [1, 1, 1, 1, 1,
-            1, 1, 1, 1, 1]
-        markers = [-1, -1, -1, -1, -1,
-            -1, -1, -1, -1, -1]
-
-
-        for i in range(1):
-            if len(labels[i]) == 0:
-                self.qtgui_time_sink_x_0_1_0.set_line_label(i, "Data {0}".format(i))
-            else:
-                self.qtgui_time_sink_x_0_1_0.set_line_label(i, labels[i])
-            self.qtgui_time_sink_x_0_1_0.set_line_width(i, widths[i])
-            self.qtgui_time_sink_x_0_1_0.set_line_color(i, colors[i])
-            self.qtgui_time_sink_x_0_1_0.set_line_style(i, styles[i])
-            self.qtgui_time_sink_x_0_1_0.set_line_marker(i, markers[i])
-            self.qtgui_time_sink_x_0_1_0.set_line_alpha(i, alphas[i])
-
-        self._qtgui_time_sink_x_0_1_0_win = sip.wrapinstance(self.qtgui_time_sink_x_0_1_0.qwidget(), Qt.QWidget)
-        self.top_layout.addWidget(self._qtgui_time_sink_x_0_1_0_win)
         self.qtgui_time_sink_x_0_0_0 = qtgui.time_sink_f(
             8400, #size
             symbol_rate, #samp_rate
@@ -253,8 +157,8 @@ class demod101(gr.top_block, Qt.QWidget):
         self.blocks_multiply_const_vxx_1 = blocks.multiply_const_ff(10e3)
         self.blocks_multiply_const_vxx_0 = blocks.multiply_const_ff(4)
         self.blocks_float_to_short_0 = blocks.float_to_short(1, 1)
-        self.blocks_file_source_0_0 = blocks.file_source(gr.sizeof_gr_complex*1, '/home/dragon/Documents/GNU-Radio-Conference-2023-CTF/Demod101/demod.sigmf-data', False, 0, 0)
-        self.blocks_file_source_0_0.set_begin_tag(pmt.PMT_NIL)
+        self.blocks_file_source_0 = blocks.file_source(gr.sizeof_gr_complex*1, '/home/dragon/Documents/GNU-Radio-Conference-2023-CTF/Demod101/demod.sigmf-data', True, (int(start_time * samp_rate)), (int((stop_time - start_time) * samp_rate)))
+        self.blocks_file_source_0.set_begin_tag(pmt.PMT_NIL)
         self.blocks_file_sink_0_0 = blocks.file_sink(gr.sizeof_char*1, '/tmp/test2.txt', False)
         self.blocks_file_sink_0_0.set_unbuffered(False)
         self.blocks_file_sink_0 = blocks.file_sink(gr.sizeof_char*1, '/tmp/test.txt', False)
@@ -284,21 +188,19 @@ class demod101(gr.top_block, Qt.QWidget):
         self.connect((self.blocks_complex_to_mag_0, 0), (self.blocks_multiply_const_vxx_0, 0))
         self.connect((self.blocks_delay_0, 0), (self.blocks_repack_bits_bb_0, 0))
         self.connect((self.blocks_delay_1, 0), (self.blocks_burst_tagger_0, 0))
-        self.connect((self.blocks_file_source_0_0, 0), (self.blocks_throttle2_0, 0))
+        self.connect((self.blocks_file_source_0, 0), (self.blocks_throttle2_0, 0))
         self.connect((self.blocks_float_to_short_0, 0), (self.blocks_burst_tagger_0, 1))
         self.connect((self.blocks_multiply_const_vxx_0, 0), (self.blocks_add_const_vxx_0, 0))
         self.connect((self.blocks_multiply_const_vxx_1, 0), (self.single_pole_iir_filter_xx_0, 0))
         self.connect((self.blocks_repack_bits_bb_0, 0), (self.blocks_file_sink_0, 0))
         self.connect((self.blocks_repack_bits_bb_0, 0), (self.blocks_xor_xx_0, 0))
         self.connect((self.blocks_threshold_ff_0, 0), (self.blocks_float_to_short_0, 0))
-        self.connect((self.blocks_threshold_ff_0, 0), (self.qtgui_time_sink_x_0_1_0_0, 0))
         self.connect((self.blocks_throttle2_0, 0), (self.freq_xlating_fir_filter_xxx_0, 0))
         self.connect((self.blocks_xor_xx_0, 0), (self.blocks_file_sink_0_0, 0))
         self.connect((self.digital_binary_slicer_fb_0, 0), (self.blocks_delay_0, 0))
         self.connect((self.freq_xlating_fir_filter_xxx_0, 0), (self.blocks_complex_to_mag_0, 0))
         self.connect((self.pdu_pdu_to_stream_x_0, 0), (self.qtgui_time_sink_x_0_0_0, 0))
         self.connect((self.single_pole_iir_filter_xx_0, 0), (self.blocks_threshold_ff_0, 0))
-        self.connect((self.single_pole_iir_filter_xx_0, 0), (self.qtgui_time_sink_x_0_1_0, 0))
 
 
     def closeEvent(self, event):
@@ -332,8 +234,6 @@ class demod101(gr.top_block, Qt.QWidget):
         self.set_variable_low_pass_filter_taps(firdes.low_pass(1.0, self.samp_rate, 5e3, 1e3, window.WIN_HAMMING, 6.76))
         self.blocks_throttle2_0.set_sample_rate(self.samp_rate)
         self.pdu_tags_to_pdu_x_0.set_rate(self.samp_rate)
-        self.qtgui_time_sink_x_0_1_0.set_samp_rate(self.samp_rate / self.decimation)
-        self.qtgui_time_sink_x_0_1_0_0.set_samp_rate(self.samp_rate / self.decimation)
 
     def get_decimation(self):
         return self.decimation
@@ -341,8 +241,6 @@ class demod101(gr.top_block, Qt.QWidget):
     def set_decimation(self, decimation):
         self.decimation = decimation
         self.set_max_pdu_size(int((self.stop_time - self.start_time) * (self.samp_rate / self.decimation)))
-        self.qtgui_time_sink_x_0_1_0.set_samp_rate(self.samp_rate / self.decimation)
-        self.qtgui_time_sink_x_0_1_0_0.set_samp_rate(self.samp_rate / self.decimation)
 
     def get_variable_low_pass_filter_taps(self):
         return self.variable_low_pass_filter_taps

@@ -1677,7 +1677,7 @@ blocks:
     field_9_key: ''
     field_9_type: string
     field_9_value: ''
-    filename: /home/dragon/Documents/GNU-Radio-Conference-2023-CTF/Demod101/part1_beforesymbolsync.sigmf-data
+    filename: ''
     hardware: ''
     license: ''
     num_extra_fields: '0'
@@ -1688,9 +1688,9 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [1304, 20.0]
+    coordinate: [1312, 52.0]
     rotation: 0
-    state: enabled
+    state: disabled
 - name: single_pole_iir_filter_xx_0
   id: single_pole_iir_filter_xx
   parameters:
